@@ -1,0 +1,20 @@
+{{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
+if ("/opt/homebrew/bin/brew" | path exists) {
+    $env.path ++= ["/opt/homebrew/bin/brew"]
+}
+{{ end }}
+
+if ("{{ joinPath .chezmoi.homeDir ".cargo/bin/rustup" }}" | path exists) {
+    $env.path ++= ["{{ joinPath .chezmoi.homeDir ".cargo/bin" }}"]
+}
+
+if ("{{ joinPath .chezmoi.homeDir ".deno/bin/deno" }}" | path exists) {
+    $env.path ++= ["{{ joinPath .chezmoi.homeDir ".deno/bin" }}"]
+}
+
+$env.config.buffer_editor = "hx"
+
+if (which starship | is-not-empty) {
+    mkdir $nu.user-autoload-dirs.0
+    starship init nu | save -f ($nu.user-autoload-dirs.0 | path join "starship.nu")
+}

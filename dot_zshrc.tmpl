@@ -1,21 +1,41 @@
-{{ if eq .chezmoi.os "darwin" }}
+typeset -U PATH path
+
+local completions_dir={{ env "XDG_DATA_HOME" | default (joinPath .chezmoi.homeDir ".local/share/zsh/site-functions") }}
+if [ ! -d $completions_dir ]
+then
+    mkdir -p $completions_dir
+fi
+
+fpath+=("$completions_dir")
+
+{{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
 if [ -f /opt/homebrew/bin/brew ]
 then
     path+=("/opt/homebrew/bin")
+    fpath+=("/opt/homebrew/share/zsh/site-functions" "/opt/homebrew/share/zsh-completions")
+    autoload -Uz compinit
+
+    compinit -u
 fi
 {{ end }}
 
-typeset -U PATH path
-if [ -f "$HOME/.cargo/bin/rustup" ];
+if [ -f {{ (joinPath .chezmoi.homeDir ".cargo/bin/rustup") }} ];
 then
-    path+=("$HOME/.cargo/bin")
+    path+=({{ (joinPath .chezmoi.homeDir ".cargo/bin") }})
+    rustup completions zsh rustup > $completions_dir/_rustup
+    rustup completions zsh cargo > $completions_dir/_cargo
 fi
 
-if [ -f "$HOME/.deno/bin/deno" ]
+if [ -f {{ (joinPath .chezmoi.homeDir ".deno/bin/deno") }} ]
 then
-    path+=("$HOME/.deno/bin")
+    path+=({{ (joinPath .chezmoi.homeDir ".deno/bin") }})
+    deno completions zsh > $completions_dir/_deno
 fi
 
-if [[ ":$FPATH:" != *":$HOME/.zsh/completions:"* ]]; then export FPATH="$HOME/.zsh/completions:$FPATH"; fi
-
+unset completions_dir
 export EDITOR=hx
+
+if which starship &> /dev/null
+then
+    eval "$(starship init zsh)"
+fi

@@ -1,0 +1,24 @@
+packages:
+  darwin:
+    brews:
+      - llvm
+      - fish
+      - nushell
+      - bash-completion
+      - zsh-completion
+      - zig
+      - yq
+      - zstd
+      - xz
+      - helix
+      - starship
+      - shfmt
+      - bash-language-server
+      - shellcheck
+      - pyrefly
+      - tombi
+      - fish-lsp
+      - cspell
+      - ripgrep
+    casks:
+      - git-credential-manager

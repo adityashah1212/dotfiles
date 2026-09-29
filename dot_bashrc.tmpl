@@ -1,18 +1,39 @@
-{{ if eq .chezmoi.os "darwin" }}
+completions_dir={{ env "XDG_DATA_HOME" | default (joinPath .chezmoi.homeDir ".local/share/bash-completion/completions") }}
+if [ ! -d $completions_dir ]
+then
+    mkdir -p$completions_dir
+fi
+
+{{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
 if [ -f /opt/homebrew/bin/brew ] && [[ ! "$PATH" =~ (^|:)"/opt/homebrew/bin"(:|$) ]]
 then
     path+=("/opt/homebrew/bin/brew")
 fi
 {{ end }}
 
-if [ -f "$HOME/.cargo/bin/rustup" ] && [[ ! "$PATH" =~ (^|:)"$HOME/.cargo/bin"(:|$) ]]
+if [ -f {{ (joinPath .chezmoi.homeDir ".cargo/bin/rustup") }} ] && [[ ! "$PATH" =~ (^|:){{ (joinPath .chezmoi.homeDir ".cargo/bin") }}(:|$) ]]
 then
     PATH="$PATH:$HOME/.cargo/bin"
+    rustup completions bash rustup > $completions_dir/rustup
+    rustup completions bash cargo > $completions_dir/cargo
 fi
 
-if [ -f "$HOME/.deno/bin/deno" ] && [[ ! "$PATH" =~ (^|:)"$HOME/.deno/bin"(:|$) ]]
+if [ -f {{ (joinPath .chezmoi.homeDir ".deno/bin/deno") }} ] && [[ ! "$PATH" =~ (^|:){{ (joinPath .chezmoi.homeDir ".deno/bin") }}(:|$) ]]
 then
-    PATH="$PATH:$HOME/.deno/bin"
+    PATH={{ cat  }}
+    deno completions bash > $completions_dir/deno
 fi
 
+{{ if eq .chezmoi.os "darwin" }}
+[[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]] && . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+{{ else if eq .chezmoi.os "linux" }}
+. /usr/share/bash-completion/bash_completion
+{{ end }}
+
+unset completions_dir
 export EDITOR=hx
+
+if which starship &> /dev/null
+then
+    eval "$(starship init bash)"
+fi

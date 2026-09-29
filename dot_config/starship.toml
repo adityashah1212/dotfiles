@@ -1,0 +1,30 @@
+format = "${custom.shell_indicator}$all"
+right_format = "$status$cmd_duration$time"
+
+[status]
+disabled = false
+format = "[$symbol$status]($style) "
+symbol = "✘ "
+
+[cmd_duration]
+min_time = 25
+format = "took [$duration]($style) "
+
+[time]
+disabled = false
+time_format = "%R"
+format = "at [$time]($style) "
+
+[custom.shell_indicator]
+command = """
+  case "$STARSHIP_SHELL" in
+    "bash") echo "[>]" ;;
+    "zsh")  echo "[⚡]"  ;;
+    "fish") echo "[🐠]" ;;
+    "nu")   echo "[🐘]"   ;;
+    *)      echo "$STARSHIP_SHELL" ;;
+  esac
+"""
+when = "true"
+shell = "bash"
+format = "[$output]($style) "

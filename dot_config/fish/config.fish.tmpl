@@ -1,15 +1,29 @@
-{{ if eq .chezmoi.os "darwin" }}
+local completions_dir={{ env "XDG_DATA_HOME" | default (joinPath .chezmoi.homeDir ".local/share/fish/vendor_completions.d") }}
+if [ ! -d $completions_dir ]
+then
+    mkdir -p$completions_dir
+fi
+
+{{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
 if [ -f /opt/homebrew/bin/brew ]
     fish_add_path "/opt/homebrew/bin"
 end
 {{ end }}
 
-if [ -f "$HOME/.cargo/bin/rustup" ]
-    fish_add_path "$HOME/.cargo/bin"
+if [ -f {{ (joinPath .chezmoi.homeDir ".cargo/bin/rustup") }} ]
+    fish_add_path {{ (joinPath .chezmoi.homeDir ".cargo/bin") }}
+    rustup completions fish rustup > $completions_dir/rustup.fish
+    rustup completions fish cargo > $completions_dir/cargo.fish
 end
 
-if [ -f "$HOME/.deno/bin/deno" ]
-    fish_add_path "$HOME/.deno/bin"
+if [ -f {{ (joinPath .chezmoi.homeDir ".deno/bin/deno") }} ]
+    fish_add_path {{ (joinPath .chezmoi.homeDir ".deno/bin") }}
+    deno completions zsh > $completions_dir/deno.fish
 end
 
 export EDITOR=hx
+
+if which starship &> /dev/null
+then
+    starship init fish | source
+fi
