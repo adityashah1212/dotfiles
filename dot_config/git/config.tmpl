@@ -1,0 +1,23 @@
+[core]
+    editor = "hx"
+
+[commit]
+    cleanup = "scissors"
+
+[init]
+    defaultBranch = "main"
+
+[user]
+    name = "Aditya Shah"
+
+[IncludeIf "hasconfig:remote.*.url:git@github.com:**"]
+    path = config.github
+[IncludeIf "hasconfig:remote.*.url:https://github.com/**"]
+    path = config.github
+
+[credential]
+{{ if eq .chezmoi.os "darwin" }}
+    helper = "osxkeychain"
+{{ else if eq .chezmoi.os "linux" }}
+    helper = /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
+{{ end }}

@@ -1,0 +1,21 @@
+{{ if eq .chezmoi.os "darwin" }}
+if [ -f /opt/homebrew/bin/brew ]
+then
+    path+=("/opt/homebrew/bin")
+fi
+{{ end }}
+
+typeset -U PATH path
+if [ -f "$HOME/.cargo/bin/rustup" ];
+then
+    path+=("$HOME/.cargo/bin")
+fi
+
+if [ -f "$HOME/.deno/bin/deno" ]
+then
+    path+=("$HOME/.deno/bin")
+fi
+
+if [[ ":$FPATH:" != *":$HOME/.zsh/completions:"* ]]; then export FPATH="$HOME/.zsh/completions:$FPATH"; fi
+
+export EDITOR=hx

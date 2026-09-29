@@ -1,0 +1,11 @@
+{{ if eq .chezmoi.os "darwin" }}
+[machine]
+provider = "applehv"
+{{ if eq .chezmoi.arch "arm64" }}
+rosetta = true
+{{ end }}
+{{ end }}
+
+[engine]
+compression_format = "zstd"
+compression_level = "9"

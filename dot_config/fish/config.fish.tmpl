@@ -1,0 +1,15 @@
+{{ if eq .chezmoi.os "darwin" }}
+if [ -f /opt/homebrew/bin/brew ]
+    fish_add_path "/opt/homebrew/bin"
+end
+{{ end }}
+
+if [ -f "$HOME/.cargo/bin/rustup" ]
+    fish_add_path "$HOME/.cargo/bin"
+end
+
+if [ -f "$HOME/.deno/bin/deno" ]
+    fish_add_path "$HOME/.deno/bin"
+end
+
+export EDITOR=hx

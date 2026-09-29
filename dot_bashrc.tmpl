@@ -1,0 +1,18 @@
+{{ if eq .chezmoi.os "darwin" }}
+if [ -f /opt/homebrew/bin/brew ] && [[ ! "$PATH" =~ (^|:)"/opt/homebrew/bin"(:|$) ]]
+then
+    path+=("/opt/homebrew/bin/brew")
+fi
+{{ end }}
+
+if [ -f "$HOME/.cargo/bin/rustup" ] && [[ ! "$PATH" =~ (^|:)"$HOME/.cargo/bin"(:|$) ]]
+then
+    PATH="$PATH:$HOME/.cargo/bin"
+fi
+
+if [ -f "$HOME/.deno/bin/deno" ] && [[ ! "$PATH" =~ (^|:)"$HOME/.deno/bin"(:|$) ]]
+then
+    PATH="$PATH:$HOME/.deno/bin"
+fi
+
+export EDITOR=hx
