@@ -1,5 +1,7 @@
-{{ if eq .chezmoi.os "darwin" }}
 [machine]
+cpus = {{ div .machine.cpus 2 }}
+memory = {{ (div .machine.memory (mul 2 1024 1024)) }}
+{{ if eq .chezmoi.os "darwin" }}
 provider = "applehv"
 {{ if eq .chezmoi.arch "arm64" }}
 rosetta = true
@@ -8,4 +10,4 @@ rosetta = true
 
 [engine]
 compression_format = "zstd"
-compression_level = 9
+compression_level = 11

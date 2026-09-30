@@ -23,7 +23,7 @@ end
 
 export EDITOR=hx
 
-if which starship &> /dev/null
+if command -q starship
 then
     starship init fish | source
 fi
