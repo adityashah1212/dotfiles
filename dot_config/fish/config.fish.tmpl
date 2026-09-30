@@ -1,8 +1,7 @@
-local completions_dir={{ env "XDG_DATA_HOME" | default (joinPath .chezmoi.homeDir ".local/share/fish/vendor_completions.d") }}
+set completions_dir {{ env "XDG_DATA_HOME" | default (joinPath .chezmoi.homeDir ".local/share/fish/vendor_completions.d") }}
 if [ ! -d $completions_dir ]
-then
-    mkdir -p$completions_dir
-fi
+    mkdir -p $completions_dir
+end
 
 {{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
 if [ -f /opt/homebrew/bin/brew ]
@@ -10,20 +9,22 @@ if [ -f /opt/homebrew/bin/brew ]
 end
 {{ end }}
 
-if [ -f {{ (joinPath .chezmoi.homeDir ".cargo/bin/rustup") }} ]
+if [ -f {{ (joinPath .chezmoi.homeDir ".cargo/bin/rustup") | quote }} ]
     fish_add_path {{ (joinPath .chezmoi.homeDir ".cargo/bin") }}
     rustup completions fish rustup > $completions_dir/rustup.fish
-    rustup completions fish cargo > $completions_dir/cargo.fish
+
+    # cargo doesn't yet support fish completions
+    # rustup completions fish cargo > $completions_dir/cargo.fish
 end
 
-if [ -f {{ (joinPath .chezmoi.homeDir ".deno/bin/deno") }} ]
+if [ -f {{ (joinPath .chezmoi.homeDir ".deno/bin/deno") | quote }} ]
     fish_add_path {{ (joinPath .chezmoi.homeDir ".deno/bin") }}
     deno completions zsh > $completions_dir/deno.fish
 end
 
-export EDITOR=hx
+set -u completions_dir
+set -Ux EDITOR hx
 
 if command -q starship
-then
     starship init fish | source
-fi
+end
