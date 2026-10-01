@@ -11,7 +11,7 @@ fpath+=("$completions_dir")
 {{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
 if [ -f /opt/homebrew/bin/brew ]
 then
-    path+=("/opt/homebrew/bin")
+    path=("/opt/homebrew/bin" $path)
     fpath+=("/opt/homebrew/share/zsh/site-functions" "/opt/homebrew/share/zsh-completions")
     autoload -Uz compinit
 
@@ -21,14 +21,14 @@ fi
 
 if [ -f {{ (joinPath .chezmoi.homeDir ".cargo/bin/rustup") }} ];
 then
-    path+=({{ (joinPath .chezmoi.homeDir ".cargo/bin") }})
+    path=({{ (joinPath .chezmoi.homeDir ".cargo/bin") }}  $path)
     rustup completions zsh rustup > $completions_dir/_rustup
     rustup completions zsh cargo > $completions_dir/_cargo
 fi
 
 if [ -f {{ (joinPath .chezmoi.homeDir ".deno/bin/deno") }} ]
 then
-    path+=({{ (joinPath .chezmoi.homeDir ".deno/bin") }})
+    path=({{ (joinPath .chezmoi.homeDir ".deno/bin") }}  $path)
     deno completions zsh > $completions_dir/_deno
 fi
 

@@ -1,26 +1,26 @@
 completions_dir={{ env "XDG_DATA_HOME" | default (joinPath .chezmoi.homeDir ".local/share/bash-completion/completions") }}
 if [ ! -d $completions_dir ]
 then
-    mkdir -p$completions_dir
+    mkdir -p $completions_dir
 fi
 
 {{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
 if [ -f /opt/homebrew/bin/brew ] && [[ ! "$PATH" =~ (^|:)"/opt/homebrew/bin"(:|$) ]]
 then
-    path+=("/opt/homebrew/bin/brew")
+    PATH="/opt/homebrew/bin/brew:$PATH"
 fi
 {{ end }}
 
-if [ -f {{ (joinPath .chezmoi.homeDir ".cargo/bin/rustup") }} ] && [[ ! "$PATH" =~ (^|:){{ (joinPath .chezmoi.homeDir ".cargo/bin") }}(:|$) ]]
+if [ -f {{ joinPath .chezmoi.homeDir ".cargo/bin/rustup" }} ] && [[ ! "$PATH" =~ (^|:){{ joinPath .chezmoi.homeDir ".cargo/bin" }}(:|$) ]]
 then
-    PATH="$PATH:$HOME/.cargo/bin"
+    PATH="{{ joinPath .chezmoi.homeDir ".cargo/bin" }}:$PATH"
     rustup completions bash rustup > $completions_dir/rustup
     rustup completions bash cargo > $completions_dir/cargo
 fi
 
 if [ -f {{ (joinPath .chezmoi.homeDir ".deno/bin/deno") }} ] && [[ ! "$PATH" =~ (^|:){{ (joinPath .chezmoi.homeDir ".deno/bin") }}(:|$) ]]
 then
-    PATH={{ cat  }}
+    PATH="{{ joinPath .chezmoi.homeDir ".deno/bin" }}:$PATH"
     deno completions bash > $completions_dir/deno
 fi
 
