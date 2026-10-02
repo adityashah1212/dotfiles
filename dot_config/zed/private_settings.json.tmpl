@@ -1,4 +1,9 @@
 {
+  "terminal": {
+    "shell": {
+      "program": "fish",
+    }
+  },
   "auto_install_extensions": {
     "zig": true,
     "fish": true,
@@ -25,6 +30,9 @@
     "mode": "system",
     "light": "Ayu Light",
     "dark": "Ayu Dark",
+  },
+  "edit_predictions": {
+    "allow_data_collection": "no",
   },
   "lsp": {
     "deno": {
@@ -55,9 +63,39 @@
     },
     "rust-analyzer": {
       "enable_lsp_tasks": true,
+      "initialization_options": {
+        "inlayHints": {
+          "maxLength": null,
+          "lifetimeElisionHints": {
+            "eanble": "skip_trivial",
+            "useParameterNames": true,
+          },
+          "closureReturnTypeHints": {
+            "enable": "always",
+          },
+        },
+      },
       "settings": {
         "check": {
           "command": "clippy",
+        },
+        "runnables": {
+          "test": {
+            "overrideCommand": [
+              "cargo",
+              "nextest",
+              "run",
+              "--package",
+              "${package}",
+              "${target_arg}",
+              "${target}",
+              "--",
+              "${test_name}",
+              "${exact}",
+              "${include_ignored}",
+              "${executable_args}",
+            ],
+          },
         },
       },
     },
