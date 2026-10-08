@@ -33,23 +33,17 @@ packages:
           suites: /
           components:
           key: https://apt.fury.io/nushell/gpg.key
-        - file: llvm
-          types: deb deb-src
-          uris: http://apt.llvm.org/@@CODENAME@@
-          suites: llvm-toolchain-@@CODENAME@@
-          components: main
-          key: https://apt.llvm.org/llvm-snapshot.gpg.key
     packages:
       - zsh
       - fish
       - nushell
-      - clang-23
-      - clang-tools-23
-      - clang-format-23
-      - clangd-23
-      - clang-tidy-23
-      - lldb-23
-      - lld-23
+      - clang
+      - clang-tools
+      - clang-format
+      - clangd
+      - clang-tidy
+      - lldb
+      - lld
       - zstd
       - ripgrep
       - mold

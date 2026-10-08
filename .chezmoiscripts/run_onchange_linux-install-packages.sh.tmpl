@@ -33,48 +33,6 @@ write_apt_source() {
 	} | sudo tee "/etc/apt/sources.list.d/${file}.sources" >/dev/null
 }
 
-latest_suffix() {
-	local prefix=$1 best="" candidate suffix
-	for candidate in "$prefix"-*; do
-		[ -x "$candidate" ] || continue
-		suffix=${candidate##*-}
-		case $suffix in
-		'' | *[!0-9]*) continue ;;
-		esac
-		if [ -z "$best" ] || [ "$suffix" -gt "$best" ]; then
-			best=$suffix
-		fi
-	done
-	printf '%s' "$best"
-}
-
-alt_install() {
-	local link=$1 name=$2 target=$3 priority=$4
-	shift 4
-	local args=() slave_link slave_target
-
-	if [ ! -x "$target" ]; then
-		return 0
-	fi
-
-	if [ -e "$link" ] && ! update-alternatives --query "$name" >/dev/null 2>&1; then
-		echo "skipping alternative $name: $link is owned by a package" >&2
-		return 0
-	fi
-
-	while [ "$#" -ge 2 ]; do
-		slave_link=$1
-		slave_target=$2
-		shift 2
-		if [ -e "$slave_target" ]; then
-			args+=(--slave "$slave_link" "${slave_link##*/}" "$slave_target")
-		fi
-	done
-
-	sudo update-alternatives --install "$link" "$name" "$target" "$priority" \
-		${args[@]+"${args[@]}"}
-}
-
 snap_install() {
 	local name=$1
 	shift
@@ -104,70 +62,6 @@ write_apt_source {{ .file | quote }} {{ .types | quote }} {{ .uris | replace "@@
 
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends{{ range .packages.debian.packages }} {{ . | quote }}{{ end }}
-
-clang_version=$(latest_suffix /usr/bin/clang)
-gcc_version=$(latest_suffix /usr/bin/gcc)
-
-if [ -n "$clang_version" ]; then
-	alt_install /usr/bin/clang clang "/usr/bin/clang-${clang_version}" "$((clang_version * 10))" \
-		/usr/bin/clang++ "/usr/bin/clang++-${clang_version}" \
-		/usr/bin/clang-cpp "/usr/bin/clang-cpp-${clang_version}" \
-		/usr/bin/clang-format "/usr/bin/clang-format-${clang_version}" \
-		/usr/bin/clang-tidy "/usr/bin/clang-tidy-${clang_version}" \
-		/usr/bin/clangd "/usr/bin/clangd-${clang_version}" \
-		/usr/bin/clang-check "/usr/bin/clang-check-${clang_version}" \
-		/usr/bin/clang-query "/usr/bin/clang-query-${clang_version}" \
-		/usr/bin/clang-rename "/usr/bin/clang-rename-${clang_version}" \
-		/usr/bin/clang-scan-deps "/usr/bin/clang-scan-deps-${clang_version}" \
-		/usr/bin/clang-apply-replacements "/usr/bin/clang-apply-replacements-${clang_version}" \
-		/usr/bin/clang-reorder-fields "/usr/bin/clang-reorder-fields-${clang_version}" \
-		/usr/bin/clang-include-fixer "/usr/bin/clang-include-fixer-${clang_version}" \
-		/usr/bin/clang-extdef-mapping "/usr/bin/clang-extdef-mapping-${clang_version}" \
-		/usr/bin/clang-refactor "/usr/bin/clang-refactor-${clang_version}" \
-		/usr/bin/run-clang-tidy "/usr/bin/run-clang-tidy-${clang_version}" \
-		/usr/bin/scan-build "/usr/bin/scan-build-${clang_version}" \
-		/usr/bin/scan-view "/usr/bin/scan-view-${clang_version}" \
-		/usr/bin/lldb "/usr/bin/lldb-${clang_version}" \
-		/usr/bin/lldb-server "/usr/bin/lldb-server-${clang_version}" \
-		/usr/bin/lldb-dap "/usr/bin/lldb-dap-${clang_version}" \
-		/usr/bin/lld "/usr/bin/lld-${clang_version}" \
-		/usr/bin/ld.lld "/usr/bin/ld.lld-${clang_version}" \
-		/usr/bin/ld64.lld "/usr/bin/ld64.lld-${clang_version}" \
-		/usr/bin/lld-link "/usr/bin/lld-link-${clang_version}" \
-		/usr/bin/wasm-ld "/usr/bin/wasm-ld-${clang_version}" \
-		/usr/share/man/man1/clang.1.gz "/usr/share/man/man1/clang-${clang_version}.1.gz" \
-		/usr/share/man/man1/clangd.1.gz "/usr/share/man/man1/clangd-${clang_version}.1.gz" \
-		/usr/share/man/man1/clang-format.1.gz "/usr/share/man/man1/clang-format-${clang_version}.1.gz" \
-		/usr/share/man/man1/clang-tidy.1.gz "/usr/share/man/man1/clang-tidy-${clang_version}.1.gz" \
-		/usr/share/man/man1/lldb.1.gz "/usr/share/man/man1/lldb-${clang_version}.1.gz" \
-		/usr/share/man/man1/lld.1.gz "/usr/share/man/man1/lld-${clang_version}.1.gz" \
-		/usr/share/man/man1/scan-build.1.gz "/usr/share/man/man1/scan-build-${clang_version}.1.gz"
-
-	alt_install /usr/bin/cc cc "/usr/bin/clang-${clang_version}" "$((clang_version * 10))" \
-		/usr/share/man/man1/cc.1.gz "/usr/share/man/man1/clang-${clang_version}.1.gz"
-
-	alt_install /usr/bin/c++ c++ "/usr/bin/clang++-${clang_version}" "$((clang_version * 10))" \
-		/usr/share/man/man1/c++.1.gz "/usr/share/man/man1/clang-${clang_version}.1.gz"
-fi
-
-if [ -n "$gcc_version" ]; then
-	alt_install /usr/bin/gcc gcc "/usr/bin/gcc-${gcc_version}" "$((gcc_version * 10))" \
-		/usr/bin/g++ "/usr/bin/g++-${gcc_version}" \
-		/usr/bin/gcov "/usr/bin/gcov-${gcc_version}" \
-		/usr/bin/gcov-dump "/usr/bin/gcov-dump-${gcc_version}" \
-		/usr/bin/gcov-tool "/usr/bin/gcov-tool-${gcc_version}" \
-		/usr/bin/gcc-ar "/usr/bin/gcc-ar-${gcc_version}" \
-		/usr/bin/gcc-nm "/usr/bin/gcc-nm-${gcc_version}" \
-		/usr/bin/gcc-ranlib "/usr/bin/gcc-ranlib-${gcc_version}" \
-		/usr/share/man/man1/gcc.1.gz "/usr/share/man/man1/gcc-${gcc_version}.1.gz" \
-		/usr/share/man/man1/g++.1.gz "/usr/share/man/man1/g++-${gcc_version}.1.gz"
-
-	alt_install /usr/bin/cc cc "/usr/bin/gcc-${gcc_version}" "$((gcc_version * 10))" \
-		/usr/share/man/man1/cc.1.gz "/usr/share/man/man1/gcc-${gcc_version}.1.gz"
-
-	alt_install /usr/bin/c++ c++ "/usr/bin/g++-${gcc_version}" "$((gcc_version * 10))" \
-		/usr/share/man/man1/c++.1.gz "/usr/share/man/man1/g++-${gcc_version}.1.gz"
-fi
 
 if ! command -v snap >/dev/null 2>&1; then
 	sudo apt-get install -y --no-install-recommends snapd
