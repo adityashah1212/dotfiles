@@ -1,10 +1,10 @@
 [data.machine]
 {{ if eq .chezmoi.os "darwin" }}
-cpus = {{ (output "sysctl" "-n" "hw.logicalcpu_max") | trim | atoi }}
-memory = {{ (output "sysctl" "-n" "hw.memsize") | trim | atoi }}
+cpus = {{ output "sysctl" "-n" "hw.logicalcpu_max" | trim | atoi }}
+memory = {{ output "sysctl" "-n" "hw.memsize" | trim | atoi }}
 {{ else if eq .chezmoi.os "linux" }}
-cpus = {{ (output "grep" "-c" "'^processor'" "/proc/cpuinfo") | trim | atoi }}
-memory = {{ (output "free" "-b" "|" "awk" "'/^Mem:/{print $2}'") | trim | atoi }}
+cpus = {{ output "nproc" | trim | atoi }}
+memory = {{ output "cat" "/proc/meminfo" | regexFind "(?m)^MemTotal:.*" | regexFind "[0-9]+" | atoi | mul 1024 }}
 {{ else if eq .chezmoi.os "windows" }}
 cpus = {{ (output "powershell" "-NoProfile" "-Command" "(Get-CimInstance Win32_Processor).NumberOfLogicalProcessors") | trim | atoi }}
 memory = {{ (output "powershell" "-NoProfile" "-Command" "(Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum") | trim | atoi }}
