@@ -22,3 +22,71 @@ packages:
       - ripgrep
     casks:
       - git-credential-manager
+  debian:
+    apt:
+      ppa:
+        - fish-shell/release-4
+      sources:
+        - file: gemfury-nushell
+          types: deb
+          uris: https://apt.fury.io/nushell/
+          suites: /
+          components:
+          key: https://apt.fury.io/nushell/gpg.key
+        - file: llvm
+          types: deb deb-src
+          uris: http://apt.llvm.org/@@CODENAME@@
+          suites: llvm-toolchain-@@CODENAME@@
+          components: main
+          key: https://apt.llvm.org/llvm-snapshot.gpg.key
+    packages:
+      - zsh
+      - fish
+      - nushell
+      - clang-23
+      - clang-tools-23
+      - clang-format-23
+      - clangd-23
+      - clang-tidy-23
+      - lldb-23
+      - lld-23
+      - zstd
+      - ripgrep
+      - mold
+      - gcc
+      - g++
+      - pipx
+      - unzip
+    snap:
+      - name: zig
+        classic: true
+        channel: beta
+      - name: helix
+        classic: true
+      - name: shellcheck
+        classic: false
+      - name: shfmt
+        classic: false
+      - name: bash-language-server
+        classic: true
+      - name: tombi
+        classic: true
+      - name: yq
+        classic: false
+      - name: node
+        classic: true
+    pipx:
+      - pyrefly
+    cargo:
+      - starship
+    deno:
+      - cspell
+      - cspell-lsp
+  cargo:
+    - cargo-nextest
+    - cargo-llvm-cov
+    - cargo-audit
+    - cargo-shear
+    - cargo-outdated
+    - cargo-zigbuild
+    - cargo-update

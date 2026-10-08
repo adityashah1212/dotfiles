@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -euo pipefail
+
+export PATH="${PATH}:${HOME}/.cargo/bin"
+
+cargo_install() {
+	local name=$1
+	if cargo install --list | grep -q "^${name} v"; then
+		return 0
+	fi
+	if command -v cargo-binstall >/dev/null 2>&1; then
+		cargo binstall --no-confirm --locked "$name"
+	else
+		cargo install --locked "$name"
+	fi
+}
+{{ range .packages.cargo }}
+cargo_install {{ . | quote }}
+{{- end }}
+{{- if eq .chezmoi.os "linux" }}
+{{- if or (eq .chezmoi.osRelease.id "debian") (contains "debian" (.chezmoi.osRelease.idLike | default "")) }}
+{{- range .packages.debian.cargo }}
+cargo_install {{ . | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
